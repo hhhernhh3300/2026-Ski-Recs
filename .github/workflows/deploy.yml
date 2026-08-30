@@ -1,0 +1,29 @@
+# Optional fallback: deploys to Cloudflare Pages on every push to main.
+#
+# You only need this if you would rather NOT install the Cloudflare Pages GitHub App.
+# If you connect the repo in the Cloudflare dashboard instead, Pages handles deploys
+# natively and you can delete this file.
+#
+# To use it, add two repository secrets under
+# Settings → Secrets and variables → Actions:
+#   CLOUDFLARE_API_TOKEN   - a token with the "Cloudflare Pages: Edit" permission
+#   CLOUDFLARE_ACCOUNT_ID  - found on the right of any Cloudflare dashboard page
+name: Deploy to Cloudflare Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=ski-cards-dec-2026
